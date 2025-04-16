@@ -24,8 +24,8 @@ class Database
         try{
             self::$connection = new \PDO("$this->driver:host=$this->host;dbname=$this->dbname;charset=$this->charset", $this->username, $this->password);
         }catch(\PDOException $e){
-            
-            die(Response::getJson('Error de conexion a Base de datos: '.$e->getMessage(),400));
+            $response = new Response();
+            $response->error('Error de conexion a Base de datos: '.$e->getMessage(),400);
         }
     }
 
