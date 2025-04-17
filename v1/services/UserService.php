@@ -18,15 +18,10 @@ class UserService
     public function register($data)
     {
         //validar
-        if(empty($data['username']) || empty($data['password'])){
-            $this->response->error('Los datos estan incompletos', 400, ['formato_esperado' => ['username' => 'pepito@correo.com', 'password' => 'Miclave1234']]);
-        }
+        $this->validateData($data);
 
         //verificar si existe
-        $name = [];
-        $data['username'] = strtolower($data['username']);
-        $name['username'] = $data['username'];
-        $existing = $this->model->filter($name);
+        $existing = $this->getUser($data['username']);
         if($existing){
             $this->response->error('El usuario '.$data['username'].' ya esta registrado');
         }
@@ -44,15 +39,10 @@ class UserService
     public function login($data)
     {
         //validar
-        if(empty($data['username']) || empty($data['password'])){
-            $this->response->error('Los datos estan incompletos', 400, ['formato_esperado' => ['username' => 'pepito@correo.com', 'password' => 'Miclave1234']]);
-        }
+        $this->validateData($data);
 
         //verificar usuario y generar token
-        $name = [];
-        $data['username'] = strtolower($data['username']);
-        $name['username'] = $data['username'];
-        $existing = $this->model->filter($name);
+        $existing = $this->getUser($data['username']);
         if($existing){
             $auth = New Auth();
             if($auth->verifyPassword($data['password'], $existing['password'])){
@@ -63,5 +53,20 @@ class UserService
             $this->response->error('El username o password son inválidos');
         }
         $this->response->error('El username o password son inválidos');
+    }
+
+    private function validateData($data)
+    {
+        if(empty($data['username']) || empty($data['password'])){
+            $this->response->error('Los datos estan incompletos', 400, ['formato_esperado' => ['username' => 'pepito@correo.com', 'password' => 'Miclave1234']]);
+        }
+    }
+
+    private function getUser($username)
+    {
+        $name = [];
+        $name['username'] = strtolower($username);
+        $existing = $this->model->filter($name);
+        return $existing;
     }
 }
