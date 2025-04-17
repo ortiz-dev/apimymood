@@ -19,4 +19,10 @@ class UserController
         $data = json_decode($this->request->rawBody(), true);
         $this->userService->register($data);
     }
+
+    public function login()
+    {
+        $data = json_decode($this->request->rawBody(), true);
+        $this->userService->login($data);
+    }
 }
