@@ -1,6 +1,7 @@
 <?php
 use Core\Router;
+use Controllers\UserController;
 
-//aquí se agregan las rutas de la api
+Router::post('/apimymood/v1/register',[UserController::class, 'registerUser']);
 
 Router::dispatch();
