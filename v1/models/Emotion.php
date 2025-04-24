@@ -2,7 +2,7 @@
 namespace Models;
 use Core\Database;
 
-class User
+class Emotion
 {
     private $connection;
     private $table;
@@ -12,9 +12,17 @@ class User
     public function __construct()
     {
         $this->connection = Database::getConnection();
-        $this->table = 'users';
+        $this->table = 'emotions';
         $this->primaryKey = 'id';
-        $this->columns = ['name', 'username', 'password'];
+        $this->columns = ['name', 'keywords'];
+    }
+
+    public function all()
+    {
+        $sql = "SELECT * FROM {$this->table}";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function find($id)
@@ -50,10 +58,5 @@ class User
         }
         $stmt->execute();
         return $stmt->rowCount();
-    }
-
-    public function lastId()
-    {
-        return $this->connection->lastInsertId();
     }
 }

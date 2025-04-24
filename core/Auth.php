@@ -30,7 +30,7 @@ class Auth
     }
 
     //validar token y devolver datos del usuario
-    public function validateToken()
+    public function validateToken($token)
     {
         try{
             $decoded = JWT::decode($token, new Key($this->secret_key, $this->algorithm));

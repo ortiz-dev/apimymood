@@ -28,6 +28,9 @@ class UserService
 
         //crear usuario
         $auth = new Auth();
+        $data['name'] = ucwords(trim($data['name']));
+        $data['username'] = strtolower(trim($data['username']));
+        $data['password'] = trim($data['password']);
         $data['password'] = $auth->hashPassword($data['password']);
         if($this->model->create($data) > 0){
             $this->response->success('El usuario se registro correctamente',['id' => $this->model->lastId()]);
@@ -39,7 +42,7 @@ class UserService
     public function login($data)
     {
         //validar
-        $this->validateData($data);
+        $this->validateData($data, true);
 
         //verificar usuario y generar token
         $existing = $this->getUser($data['username']);
@@ -55,17 +58,25 @@ class UserService
         $this->response->error('El username o password son inválidos');
     }
 
-    private function validateData($data)
+    private function validateData($data, $login = false)
     {
-        if(empty($data['username']) || empty($data['password'])){
-            $this->response->error('Los datos estan incompletos', 400, ['formato_esperado' => ['username' => 'pepito@correo.com', 'password' => 'Miclave1234']]);
+        if($login){
+            $extra = ['username' => 'pepito@correo.com', 'password' => 'Miclave'];
+        }else{
+            $extra = ['name' => 'Pepe Torres','username' => 'pepito@correo.com', 'password' => 'Miclave'];
+        }
+        
+        $login = $login ? false : empty($data['name']);
+        
+        if($login || empty($data['username']) || empty($data['password'])){
+            $this->response->error('Los datos estan incompletos', 400, ['formato_esperado' => $extra]);
         }
     }
 
     private function getUser($username)
     {
         $name = [];
-        $name['username'] = strtolower($username);
+        $name['username'] = trim(strtolower($username));
         $existing = $this->model->filter($name);
         return $existing;
     }
