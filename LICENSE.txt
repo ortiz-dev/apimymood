@@ -1,0 +1,13 @@
+Copyright © 2025 Mabel Ortiz
+
+Todos los derechos reservados.
+
+Este software y su código fuente se publican únicamente con fines de visualización. No se concede ningún derecho de uso, copia, modificación, distribución, sublicenciamientoni uso comercialsin el consentimiento expreso y por escritodel titular de los derechos.
+
+Queda prohibido:
+- Usar este software o partes de su código con fines comerciales.
+- Modificar o adaptar el código fuente.
+- Redistribuir este código, total o parcialmente, en cualquier forma o medio.
+
+El simple hecho de tener acceso al código no implica la concesión de ningún derecho de licencia.
+Para consultas sobre permisos especiales, comuniquese con: ortiz.dev@outlook.com
