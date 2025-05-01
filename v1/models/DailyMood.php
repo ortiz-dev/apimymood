@@ -2,7 +2,7 @@
 namespace Models;
 use Core\Database;
 
-class Emotion
+class DailyMood
 {
     private $connection;
     private $table;
@@ -12,24 +12,26 @@ class Emotion
     public function __construct()
     {
         $this->connection = Database::getConnection();
-        $this->table = 'emotions';
+        $this->table = 'daily_moods';
         $this->primaryKey = 'id';
-        $this->columns = ['name', 'keywords'];
+        $this->columns = ['user_id', 'state', 'phrase_id', 'daily_date'];
     }
 
-    public function all()
+    public function all($id_user)
     {
-        $sql = "SELECT * FROM {$this->table}";
+        $sql = "SELECT * FROM {$this->table} WHERE user_id = :user_id";
         $stmt = $this->connection->prepare($sql);
+        $stmt->bindValue(":user_id", $id_user);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function find($id)
+    public function find($id_user, $date)
     {
-        $sql = "SELECT * FROM {$this->table} WHERE {$this->primaryKey} = :id";
+        $sql = "SELECT * FROM {$this->table} WHERE  user_id = :user_id AND daily_date = :daily_date";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(":{$this->primaryKey}", $id);
+        $stmt->bindValue(":user_id", $id_user);
+        $stmt->bindValue(":daily_date", $date);
         $stmt->execute();
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
@@ -58,5 +60,10 @@ class Emotion
         }
         $stmt->execute();
         return $stmt->rowCount();
+    }
+
+    public function lastId()
+    {
+        return $this->connection->lastInsertId();
     }
 }
