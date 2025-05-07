@@ -26,11 +26,11 @@ class Phrase
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function filter($ids_mood)
+    public function filter($column, $value)
     {
-        $sql = "SELECT * FROM mood_phrases WHERE mood_id in(:ids_mood)";
+        $sql = "SELECT * FROM mood_phrases WHERE $column = :$column";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(":ids_mood", $ids_mood);
+        $stmt->bindValue(":$column", $value);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }

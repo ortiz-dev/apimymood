@@ -45,11 +45,8 @@ class DailyMoodService
 
         //crear el registro del estado de ánimo
         $data['state'] = trim(strtolower($data['state']));
-        $keyWords = $this->searchKeyWords($data['state']);
-        if(!$keyWords){
-            $keyWords = $this->getMoodDefault();
-        }
-        $data['phrase_id'] = $this->getPhraseId($keyWords);
+        $keyWord = $this->getKeyWord($data['state']);
+        $data['phrase_id'] = $this->getPhraseId($keyWord['mood_id']);
         if(!$data['phrase_id']){
             $this->response->error('No se ha efectuado el registro del estado de ánimo');
         }
@@ -76,29 +73,101 @@ class DailyMoodService
         return $existing;
     }
 
-    private function getPhraseId($ids_mood){
+    private function getPhraseId($mood_id){
         $phrase = new Phrase();
-        $phrases = $phrase->filter($ids_mood);
-        if($phrases){
-            $index = rand(1,count($phrases));
-            return $phrases[$index]['phrase_id'];
+        $mood_phrases = $phrase->filter('mood_id', $mood_id);
+        if($mood_phrases){
+            $index = rand(1,count($mood_phrases));
+            return $mood_phrases[$index]['phrase_id'];
         }
         return null;
     }
 
-    private function searchKeyWords($state){
-        $words = explode(' ',$state);
-        $words = array_filter($words, fn($word) => strlen($word)>2);
+    private function getKeyWord($state){
         $mood = new Mood();
-        return $mood->filter($words);
+        $moods = $mood->getAll();
+        $words = explode(' ', $state);
+        $default = [];
+        
+        foreach($words as $word){
+            foreach($moods as $mood){
+                if(strpos(str_replace(',', ' ', $mood['emotion']).' ', $word.' ') !== false){
+                    return ['mood_id' => $mood['id'], 'emotion' => $word];
+                }
+                if(strpos(str_replace(',', ' ', $mood['emotion']).' ', 'neutral ') !== false){
+                    $default['mood_id'] = $mood['id'];
+                    $default['emotion'] = 'neutral';
+                }
+            }
+        }
+        return $default;
     }
 
-    private function getMoodDefault()
+    public function getSummaryWeek()
     {
-        $data = [];
-        array_push($data, 'otra');
-        $mood = new Mood();
-        return $mood->filter($data);;
+        //verifica autenticación
+        $allow = $this->auth->isAuthenticated();
+        if(!$allow){
+            $this->response->error('Debe realizar la autenticación(login)');
+        }
+
+        $id_user = $allow->id;
+        $weekData = $this->model->filterWeek($id_user);
+        if($weekData){
+            $response = $this->getCountMood($weekData);
+            $emotions = $response['emotions'];
+            $mood = $this->getMaxEmotion($emotions);
+            $this->response->success('Resumen del estado de ánimo de la semana',['summary_week' => $weekData, 'frequency' => $response['week'], 'dominant_state' => $mood]);
+        }
+        $this->response->error('Aún no hay registros de estado de ánimo de esta semana');
     }
 
+    private function getCountMood($weekData){
+        $emotions = [];
+        $week = [];
+        foreach($weekData as $day){
+            $emotion = $this->getKeyWord($day['state']);
+            $week[$day['day']] = $emotion['emotion'];
+            if(array_key_exists($emotion['emotion'], $emotions)){
+                $emotions[$emotion['emotion']] +=1;
+            }else{
+                $emotions[$emotion['emotion']] = 1;
+            }
+        }
+        return  ['week' => $week, 'emotions' => $emotions];
+    }
+
+    private function getMaxEmotion($emotions)
+    {
+        $mood = 'variante';
+        $countMood = 0;
+        foreach($emotions as $emotion => $count){
+            if($count == 4){
+                $mood = $emotion;
+                return $mood;
+            }
+            else if($count == 3 && $count >= $countMood){
+                if($mood!='variante' && $countMood == $count){
+                     $mood .=' y '.$emotion;
+                     return $mood;
+                }
+                $countMood = $count;
+                $mood = $emotion;
+            }
+            else if($count == 2 && $count >= $countMood){
+                if($mood!='variante' && $countMood == $count){
+                    $mood .=' y '.$emotion;
+                }else{
+                    $mood = $emotion;
+                    $countMood = $count;
+                }
+            }
+        }
+
+        if(substr_count($mood, ' y ') == 2){
+            $mood = 'variante';
+        }
+                
+        return $mood;
+    }
 }

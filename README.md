@@ -2,7 +2,7 @@
 
 # API My Mood (Estado de ánimo diario)
 
-Una API REST construida en PHP que permite registrarel estado de ánimo diario del usuario, devuelve frase motivacional de acuerdo al estado de ánimo y proporciona un resumen semanal. Utiliza **Composer** para autoloading y **JWT(JSON Web Tokens)** para la autenticación.
+Una API REST construida en PHP que permite registrar el estado de ánimo diario del usuario, devuelve frase motivacional de acuerdo al estado de ánimo y proporciona un resumen semanal. Utiliza **Composer** para autoloading y **JWT(JSON Web Tokens)** para la autenticación.
 
 ## Tabla de Contenidos
 

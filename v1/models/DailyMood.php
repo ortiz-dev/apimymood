@@ -36,6 +36,15 @@ class DailyMood
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
+    public function filterWeek($id_user)
+    {
+        $sql = "SELECT DAYNAME(dm.daily_date) as day, dm.state, p.phrase FROM {$this->table} AS dm INNER JOIN phrases AS p ON dm.phrase_id = p.id WHERE WEEK(daily_date) = WEEK(now()) AND user_id = :user_id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindValue(":user_id", $id_user);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     public function filter($data)
     {
         $key = array_keys($data)[0];

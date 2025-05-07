@@ -19,4 +19,9 @@ class DailyMoodController
         $data = json_decode($this->request->rawBody(), true);
         $this->dailyMoodService->register($data);
     }
+
+    public function getSummaryWeek()
+    {
+        $this->dailyMoodService->getSummaryWeek();
+    }
 }
